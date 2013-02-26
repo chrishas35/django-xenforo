@@ -31,7 +31,7 @@ class XenForoSHA256PasswordHasher(BasePasswordHasher):
         assert algorithm == self.algorithm
         return SortedDict([
             (_('algorithm'), algorithm),
-            (_('salt'), mask_hash(salt, show = self.salt_show))
+            (_('salt'), mask_hash(salt, show = self.salt_show)),
             (_('hash'), mask_hash(hash)),
         ])
 
