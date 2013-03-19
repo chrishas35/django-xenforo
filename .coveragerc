@@ -1,0 +1,5 @@
+[run]
+omit = xenforo/tests/*
+
+[html]
+directory = coverage_html_report
