@@ -5,6 +5,11 @@ from django.utils.crypto import constant_time_compare
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_noop as _
 
+try:
+    from django.utils.encoding import force_bytes
+except ImportError:
+    def force_bytes(s):
+        return s
 
 class XenForoSHA256PasswordHasher(BasePasswordHasher):
     """
@@ -17,7 +22,7 @@ class XenForoSHA256PasswordHasher(BasePasswordHasher):
     def encode(self, password, salt):
         assert password
         assert salt and '$' not in salt
-        hash = self.digest('%s%s' % (self.digest(password).hexdigest(), salt)).hexdigest()
+        hash = self.digest(force_bytes('%s%s' % (self.digest(force_bytes(password)).hexdigest(), salt))).hexdigest()
         return '%s$%s$%s' % (self.algorithm, salt, hash)
 
     def verify(self, password, encoded):
@@ -31,7 +36,7 @@ class XenForoSHA256PasswordHasher(BasePasswordHasher):
         assert algorithm == self.algorithm
         return SortedDict([
             (_('algorithm'), algorithm),
-            (_('salt'), mask_hash(salt, show = self.salt_show)),
+            (_('salt'), mask_hash(salt, show=self.salt_show)),
             (_('hash'), mask_hash(hash)),
         ])
 
