@@ -6,10 +6,12 @@ from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext_noop as _
 
 try:
+    # force_bytes is new in Django 1.5
     from django.utils.encoding import force_bytes
 except ImportError:
     def force_bytes(s):
         return s
+
 
 class XenForoSHA256PasswordHasher(BasePasswordHasher):
     """
