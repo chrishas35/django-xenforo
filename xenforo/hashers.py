@@ -3,14 +3,8 @@ import hashlib
 from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
 from django.utils.crypto import constant_time_compare
 from django.utils.datastructures import SortedDict
+from django.utils.encoding import force_bytes
 from django.utils.translation import ugettext_noop as _
-
-try:
-    # force_bytes is new in Django 1.5
-    from django.utils.encoding import force_bytes
-except ImportError:
-    def force_bytes(s):
-        return s
 
 
 class XenForoSHA256PasswordHasher(BasePasswordHasher):
