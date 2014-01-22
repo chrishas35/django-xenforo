@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from unittest import TestCase
 
 from django.conf.global_settings import PASSWORD_HASHERS as default_hashers
