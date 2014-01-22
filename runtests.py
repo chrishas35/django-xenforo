@@ -1,12 +1,15 @@
 #!/usr/bin/env python
+import os
 import sys
 
 from django.conf import settings
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
 if not settings.configured:
     settings.configure(
         INSTALLED_APPS=('django.contrib.auth', 'xenforo'),
-        DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}},
+        DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR,'db_test.sqlite3')},}
     )
 
 
