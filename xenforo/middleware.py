@@ -2,24 +2,25 @@ from socket import inet_ntoa
 from struct import pack
 from time import time
 
-from django.db import connection
+from django.db import connections
 
 import phpserialize
+
+from .conf import settings
 
 
 class XFSessionMiddleware(object):
     def process_request(self, request):
-        request.xf_session_id = request.COOKIES.get('xf_session', None) # TODO: Setting for cookie name
+        request.xf_session_id = request.COOKIES.get(settings.XENFORO_COOKIE_PREFIX + 'session', None)
         request.xf_session = None
 
         if not request.xf_session_id:
             return
 
         # TODO: pluggable SessionStores
-        # TODO: Setting for table prefix
-        # TODO: Setting for custom database
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM xf_session WHERE session_id = %s AND expiry_date >= %s", [request.xf_session_id, int(time())])
+        cursor = connections[settings.XENFORO_DATABASE].cursor()
+        cursor.execute("SELECT * FROM %ssession WHERE session_id = %s AND expiry_date >= %s",
+            [settings.XENFORO_TABLE_PREFIX, request.xf_session_id, int(time())])
         row = cursor.fetchone()
 
         if row:
@@ -38,14 +39,14 @@ class XFAuthenticationMiddleware(object):
 
         xf_session_ip = inet_ntoa(pack("!L", request.xf_session.get('ip', None)))
 
-        if xf_session_ip != request.META['HTTP_X_REAL_IP']: #TODO: Setting for IP matching
+        if xf_session_ip != request.META[settings.XENFORO_IP_ADDRESS_KEY]:
             return
 
         lookup_user_id = int(request.xf_session.get('user_id', None))
-        # TODO: Setting for table prefix
-        # TODO: Setting for custom database
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM xf_user WHERE user_id = %s", [lookup_user_id])
+
+        cursor = connections[settings.XENFORO_DATABASE].cursor()
+        cursor.execute("SELECT * FROM %suser WHERE user_id = %s",
+            [settings.XENFORO_TABLE_PREFIX, lookup_user_id])
 
         request.xf_user = cursor.fetchone() # TODO: Convert list to dict
 

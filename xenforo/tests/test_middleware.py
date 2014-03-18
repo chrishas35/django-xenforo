@@ -8,6 +8,7 @@ except ImportError:
     from mock import Mock, patch
 
 from ..middleware import XFAuthenticationMiddleware, XFSessionMiddleware
+from ..conf import settings
 
 
 class TestXFSessionMiddleware(TestCase):
@@ -22,17 +23,17 @@ class TestXFSessionMiddleware(TestCase):
         self.assertEqual(self.request.xf_session, None)
 
     def test_expired_or_nonexistant_session(self):
-        self.request.COOKIES = {'xf_session': '123456abcdef'}
-        with patch('xenforo.middleware.connection') as mockdb:
-            mockdb.cursor().fetchone.return_value = None
+        self.request.COOKIES = {'%ssession' % settings.XENFORO_COOKIE_PREFIX: '123456abcdef'}
+        with patch('xenforo.middleware.connections') as mockdb:
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = None
             self.middleware.process_request(self.request)
             self.assertEqual(self.request.xf_session_id, '123456abcdef')
             self.assertEqual(self.request.xf_session, None)
-    
+
     def test_xf_session(self):
-        self.request.COOKIES = {'xf_session': '123456abcdef'}
-        with patch('xenforo.middleware.connection') as mockdb:
-            mockdb.cursor().fetchone.return_value = ['123456abcdef', b'a:1:{s:7:"user_id";i:123;}', 1390352607] #TODO: Add IP address
+        self.request.COOKIES = {'%ssession' % settings.XENFORO_COOKIE_PREFIX: '123456abcdef'}
+        with patch('xenforo.middleware.connections') as mockdb:
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = ['123456abcdef', b'a:1:{s:7:"user_id";i:123;}', 1390352607] #TODO: Add IP address
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_session_id, '123456abcdef')
         self.assertEqual(self.request.xf_session.get(b'user_id'), 123)
@@ -47,7 +48,7 @@ class TestXFAuthenticationMiddleware(TestCase):
         self.request = {}
         with self.assertRaises(Exception):
             self.middleware.process_request(self.request)
-    
+
     def test_no_xf_session(self):
         self.request.xf_session = None
         self.middleware.process_request(self.request)
@@ -55,28 +56,28 @@ class TestXFAuthenticationMiddleware(TestCase):
         self.assertEqual(self.request.xf_user, None)
 
     def test_valid_session(self):
-        self.request.META = {'HTTP_X_REAL_IP': '192.0.2.30',}
+        self.request.META = {settings.XENFORO_IP_ADDRESS_KEY: '192.0.2.30',}
         self.request.xf_session = {'user_id': 123, 'ip': 3221226014}
-        with patch('xenforo.middleware.connection') as mockdb:
-            mockdb.cursor().fetchone.return_value = ['123', 'TestUser']
+        with patch('xenforo.middleware.connections') as mockdb:
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = ['123', 'TestUser']
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_user_id, 123)
         self.assertEqual(self.request.xf_user, ['123', 'TestUser'])
 
     def test_ip_mismatch(self):
-        self.request.META = {'HTTP_X_REAL_IP': '192.0.2.31',}
+        self.request.META = {settings.XENFORO_IP_ADDRESS_KEY: '192.0.2.31',}
         self.request.xf_session = {'user_id': 123, 'ip': 3221226014}
-        with patch('xenforo.middleware.connection') as mockdb:
-            mockdb.cursor().fetchone.return_value = ['123', 'TestUser']
+        with patch('xenforo.middleware.connections') as mockdb:
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = ['123', 'TestUser']
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_user_id, None)
         self.assertEqual(self.request.xf_user, None)
 
     def test_no_xf_user_row(self):
-        self.request.META = {'HTTP_X_REAL_IP': '192.0.2.30',}
+        self.request.META = {settings.XENFORO_IP_ADDRESS_KEY: '192.0.2.30',}
         self.request.xf_session = {'user_id': 123, 'ip': 3221226014}
-        with patch('xenforo.middleware.connection') as mockdb:
-            mockdb.cursor().fetchone.return_value = None
+        with patch('xenforo.middleware.connections') as mockdb:
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = None
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_user_id, None)
         self.assertEqual(self.request.xf_user, None)
