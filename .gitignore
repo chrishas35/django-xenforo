@@ -33,3 +33,6 @@ coverage_html_report
 
 # Translations
 *.mo
+
+# Docs
+docs/_build/
