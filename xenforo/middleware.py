@@ -37,12 +37,15 @@ class XFAuthenticationMiddleware(object):
         if not request.xf_session:
             return
 
-        xf_session_ip = inet_ntoa(pack("!L", request.xf_session.get('ip', None)))
+        if not request.xf_session.get(b'ip', None):
+            return
+
+        xf_session_ip = inet_ntoa(pack("!L", request.xf_session.get(b'ip')))
 
         if xf_session_ip != request.META[settings.XENFORO_IP_ADDRESS_KEY]:
             return
 
-        lookup_user_id = int(request.xf_session.get('user_id', None))
+        lookup_user_id = int(request.xf_session.get(b'user_id', None))
 
         cursor = connections[settings.XENFORO_DATABASE].cursor()
         cursor.execute("SELECT * FROM %suser WHERE user_id = %s",
