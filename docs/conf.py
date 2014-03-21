@@ -264,7 +264,7 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx_mapping = {'http://docs.python.org/': None}
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/', None),
-    'sphinx': ('http://sphinx-doc.org/', None),
-    'django': ('http://docs.djangoproject.com/en/1.7/', 'http://docs.djangoproject.com/en/1.7/_objects/'),
+  'python': ('http://python.readthedocs.org/en/latest/', None),
+  'django': ('http://django.readthedocs.org/en/latest/', None),
+  'sphinx': ('http://sphinx.readthedocs.org/en/latest/', None),
 }
