@@ -24,7 +24,7 @@ class XFSessionMiddleware(object):
         row = cursor.fetchone()
 
         if row:
-            request.xf_session = phpserialize.unserialize(row[1])
+            request.xf_session = phpserialize.unserialize(row[1], decode_strings=True)
 
 
 class XFAuthenticationMiddleware(object):
@@ -37,15 +37,15 @@ class XFAuthenticationMiddleware(object):
         if not request.xf_session:
             return
 
-        if not request.xf_session.get(b'ip', None):
+        if not request.xf_session.get('ip', None):
             return
 
-        xf_session_ip = inet_ntoa(pack("!L", request.xf_session.get(b'ip')))
+        xf_session_ip = inet_ntoa(pack("!L", request.xf_session.get('ip')))
 
         if xf_session_ip != request.META[settings.XENFORO_IP_ADDRESS_KEY]:
             return
 
-        lookup_user_id = int(request.xf_session.get(b'user_id', None))
+        lookup_user_id = int(request.xf_session.get('user_id', None))
 
         cursor = connections[settings.XENFORO_DATABASE].cursor()
         cursor.execute("SELECT * FROM %suser WHERE user_id = %s",
