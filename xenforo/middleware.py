@@ -31,6 +31,7 @@ class XFSessionMiddleware(object):
         cursor.execute("SELECT session_id, session_data, expiry_date FROM " + settings.XENFORO_TABLE_PREFIX + "session WHERE session_id = %s AND expiry_date >= %s",
             [request.xf_session_id, int(time())])
         row = cursor.fetchone()
+        cursor.close()
 
         if row:
             request.xf_session = phpserialize.unserialize(row[1], decode_strings=True)
@@ -64,6 +65,7 @@ class XFAuthenticationMiddleware(object):
             [lookup_user_id])
 
         request.xf_user = dictfetchall(cursor)[0]
+        cursor.close()
 
         if request.xf_user:
             request.xf_user_id = int(request.xf_user['user_id'])
