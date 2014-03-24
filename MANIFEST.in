@@ -1,0 +1,2 @@
+include versioneer.py
+include xenforo/_version.py

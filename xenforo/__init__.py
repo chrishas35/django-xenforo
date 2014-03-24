@@ -1,5 +1,4 @@
-__version__ = '0.1.dev2'
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
-
-def version_hook(config):
-    config['metadata']['version'] = __version__
