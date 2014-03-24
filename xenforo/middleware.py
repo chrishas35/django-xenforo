@@ -48,8 +48,8 @@ class XFAuthenticationMiddleware(object):
         lookup_user_id = int(request.xf_session.get('user_id', None))
 
         cursor = connections[settings.XENFORO_DATABASE].cursor()
-        cursor.execute("SELECT * FROM %suser WHERE user_id = %s",
-            [settings.XENFORO_TABLE_PREFIX, lookup_user_id])
+        cursor.execute("SELECT * FROM " + settings.XENFORO_TABLE_PREFIX + "user WHERE user_id = %s",
+            [lookup_user_id])
 
         request.xf_user = cursor.fetchone() # TODO: Convert list to dict
 
