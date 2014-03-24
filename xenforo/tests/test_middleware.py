@@ -59,16 +59,18 @@ class TestXFAuthenticationMiddleware(TestCase):
         self.request.META = {settings.XENFORO_IP_ADDRESS_KEY: '192.0.2.30',}
         self.request.xf_session = {'user_id': 123, 'ip': 3221226014}
         with patch('xenforo.middleware.connections') as mockdb:
-            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = [123, 'TestUser']
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchall.return_value = ([123, 'TestUser'],)
+            mockdb[settings.XENFORO_DATABASE].cursor().description = (('user_id', 3, None, 10, 10, 0, 0), ('username', 253, None, 50, 50, 0, 0),)
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_user_id, 123)
-        self.assertEqual(self.request.xf_user, [123, 'TestUser'])
+        self.assertEqual(self.request.xf_user, {'user_id': 123, 'username': 'TestUser'})
 
     def test_ip_mismatch(self):
         self.request.META = {settings.XENFORO_IP_ADDRESS_KEY: '192.0.2.31',}
         self.request.xf_session = {'user_id': 123, 'ip': 3221226014}
         with patch('xenforo.middleware.connections') as mockdb:
-            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = ['123', 'TestUser']
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchall.return_value = ([123, 'TestUser'],)
+            mockdb[settings.XENFORO_DATABASE].cursor().description.return_value = (('user_id',),('username',))
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_user_id, None)
         self.assertEqual(self.request.xf_user, None)
@@ -78,6 +80,7 @@ class TestXFAuthenticationMiddleware(TestCase):
         self.request.xf_session = {'user_id': 123, 'ip': 3221226014}
         with patch('xenforo.middleware.connections') as mockdb:
             mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = None
+            mockdb[settings.XENFORO_DATABASE].cursor().description.return_value = (('user_id',),('username',))
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_user_id, None)
         self.assertEqual(self.request.xf_user, None)

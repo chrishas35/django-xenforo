@@ -64,7 +64,11 @@ class XFAuthenticationMiddleware(object):
         cursor.execute("SELECT * FROM " + settings.XENFORO_TABLE_PREFIX + "user WHERE user_id = %s",
             [lookup_user_id])
 
-        request.xf_user = dictfetchall(cursor)[0]
+        try:
+            request.xf_user = dictfetchall(cursor)[0]
+        except IndexError:
+            request.xf_user = None
+
         cursor.close()
 
         if request.xf_user:
