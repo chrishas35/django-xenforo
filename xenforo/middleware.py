@@ -19,8 +19,8 @@ class XFSessionMiddleware(object):
 
         # TODO: pluggable SessionStores
         cursor = connections[settings.XENFORO_DATABASE].cursor()
-        cursor.execute("SELECT * FROM %ssession WHERE session_id = %s AND expiry_date >= %s",
-            [settings.XENFORO_TABLE_PREFIX, request.xf_session_id, int(time())])
+        cursor.execute("SELECT session_id, session_data, expiry_date FROM " + settings.XENFORO_TABLE_PREFIX + "session WHERE session_id = %s AND expiry_date >= %s",
+            [request.xf_session_id, int(time())])
         row = cursor.fetchone()
 
         if row:
