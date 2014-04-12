@@ -26,6 +26,7 @@ setup(
 	tests_require = [
 		'pytest==2.5.1',
 		'mock',
+		'bcrypt==1.0.2',
 	],
 	test_suite = 'runtests.runtests',
 	packages=find_packages(),

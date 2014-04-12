@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from unittest import TestCase
+from unittest import TestCase, skipUnless
 
 from django.conf.global_settings import PASSWORD_HASHERS as default_hashers
 from django.contrib.auth.hashers import (is_password_usable,
-    check_password, load_hashers, make_password)
+    check_password, load_hashers, make_password, identify_hasher)
 
+try:
+    import bcrypt
+except ImportError:
+    bcrypt = None
 
 class TestHashers(TestCase):
     def setUp(self):
         load_hashers(password_hashers=default_hashers + (
+            'xenforo.hashers.XenForoCore12PasswordHasher',
             'xenforo.hashers.XenForoSHA256PasswordHasher',
             'xenforo.hashers.XenForoSHA1PasswordHasher',
             'xenforo.hashers.VBulletinPasswordHasher',
@@ -42,3 +47,12 @@ class TestHashers(TestCase):
         self.assertTrue(check_password('lètmein', encoded))
         self.assertFalse(check_password('lètmeinz', encoded))
         # self.assertEqual(identify_hasher(encoded).algorithm, 'xenforo_sha256')
+
+    @skipUnless(bcrypt, "bcrypt not installed")
+    def test_xenforo_core12(self):
+        encoded = make_password('lètmein', hasher='xenforo_core12')
+        self.assertTrue(is_password_usable(encoded))
+        self.assertTrue(encoded.startswith('xenforo_core12$'))
+        self.assertTrue(check_password('lètmein', encoded))
+        self.assertFalse(check_password('lètmeinz', encoded))
+        self.assertEqual(identify_hasher(encoded).algorithm, "xenforo_core12")
