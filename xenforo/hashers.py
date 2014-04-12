@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import hashlib
 
 from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
@@ -86,3 +87,14 @@ class XenForoCore12PasswordHasher(BasePasswordHasher):
         hashpw = force_bytes(bcrypt.hashpw(password, data))
 
         return constant_time_compare(data, hashpw)
+
+    def safe_summary(self, encoded):
+        algorithm, empty, algostr, work_factor, data = encoded.split('$', 4)
+        assert algorithm == self.algorithm
+        salt, checksum = data[:22], data[22:]
+        return OrderedDict([
+            (_('algorithm'), algorithm),
+            (_('work factor'), work_factor),
+            (_('salt'), mask_hash(salt)),
+            (_('checksum'), mask_hash(checksum)),
+        ])
