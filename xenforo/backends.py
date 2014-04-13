@@ -11,17 +11,13 @@ from .utils import dictfetchall, convert_to_django_password
 class XFAuthBackend(object):
     """
     Checks for a XenForo user, and if found, creates a settings.AUTH_USER_MODEL
-    and authenticates against it.
+    instance and authenticates against it.
+
+    If a settings.AUTH_USER_MODEL instance already exists, the password will be
+    set to the password hash from XenForo.
     """
 
     def authenticate(self, username=None, password=None, **kwargs):
-        """
-        We're here either beacause the user was not found in the Django's user
-        model, or the password did not match.  This authentication will create
-        or update the Django row and reattempt authentication.
-        """
-        print('In XFAuthBackend.authenticate')
-
         if username is None:
             return None
 
