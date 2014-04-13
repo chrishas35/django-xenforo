@@ -42,8 +42,6 @@ class XFAuthBackend(object):
         user, created = UserModel.objects.get_or_create(**{
             UserModel.USERNAME_FIELD: username,
             'defaults': {'pk': row['user_id'],
-                         'is_staff': True,
-                         'is_superuser': True,
                          'password': convert_to_django_password(row['scheme_class'], row['data'])
                         }
         })
