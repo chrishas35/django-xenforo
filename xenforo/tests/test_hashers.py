@@ -28,7 +28,7 @@ class TestHashers(TestCase):
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(check_password('lètmein', encoded))
         self.assertFalse(check_password('lètmeinz', encoded))
-        # self.assertEqual(identify_hasher(encoded).algorithm, 'xenforo_sha256')
+        self.assertEqual(identify_hasher(encoded).algorithm, 'xenforo_sha256')
 
     def test_xenforo_sha1(self):
         encoded = make_password('lètmein', 'seasalt', 'xenforo_sha1')
@@ -37,7 +37,7 @@ class TestHashers(TestCase):
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(check_password('lètmein', encoded))
         self.assertFalse(check_password('lètmeinz', encoded))
-        # self.assertEqual(identify_hasher(encoded).algorithm, 'xenforo_sha256')
+        self.assertEqual(identify_hasher(encoded).algorithm, 'xenforo_sha1')
 
     def test_vbulletin_md5(self):
         encoded = make_password('lètmein', 'seasalt', 'vbulletin_md5')
@@ -46,7 +46,7 @@ class TestHashers(TestCase):
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(check_password('lètmein', encoded))
         self.assertFalse(check_password('lètmeinz', encoded))
-        # self.assertEqual(identify_hasher(encoded).algorithm, 'xenforo_sha256')
+        self.assertEqual(identify_hasher(encoded).algorithm, 'vbulletin_md5')
 
     @skipUnless(bcrypt, "bcrypt not installed")
     def test_xenforo_core12(self):
@@ -56,3 +56,7 @@ class TestHashers(TestCase):
         self.assertTrue(check_password('lètmein', encoded))
         self.assertFalse(check_password('lètmeinz', encoded))
         self.assertEqual(identify_hasher(encoded).algorithm, "xenforo_core12")
+
+        # XenForo generated hash
+        self.assertTrue(check_password('lètmein',
+            'xenforo_core12$$2a$10$EnvKvs.royUb7HV2lBGAROLdwbghtS4KBlaDrkFoFa3sIAmPn6gk6'))
