@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 
 from unittest import TestCase, skipUnless
 
-from django.conf.global_settings import PASSWORD_HASHERS as default_hashers
 from django.contrib.auth.hashers import (is_password_usable,
     check_password, load_hashers, make_password, identify_hasher)
 
@@ -13,14 +12,6 @@ except ImportError:
     bcrypt = None
 
 class TestHashers(TestCase):
-    def setUp(self):
-        load_hashers(password_hashers=default_hashers + (
-            'xenforo.hashers.XenForoCore12PasswordHasher',
-            'xenforo.hashers.XenForoSHA256PasswordHasher',
-            'xenforo.hashers.XenForoSHA1PasswordHasher',
-            'xenforo.hashers.VBulletinPasswordHasher',
-        ))
-
     def test_xenforo_sha256(self):
         encoded = make_password('lètmein', 'seasalt', 'xenforo_sha256')
         self.assertEqual(encoded,

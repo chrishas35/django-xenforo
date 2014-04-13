@@ -79,7 +79,7 @@ class TestXFAuthenticationMiddleware(TestCase):
         self.request.META = {settings.XENFORO_IP_ADDRESS_KEY: '192.0.2.30',}
         self.request.xf_session = {'user_id': 123, 'ip': 3221226014}
         with patch('xenforo.middleware.connections') as mockdb:
-            mockdb[settings.XENFORO_DATABASE].cursor().fetchone.return_value = None
+            mockdb[settings.XENFORO_DATABASE].cursor().fetchall.return_value = ()
             mockdb[settings.XENFORO_DATABASE].cursor().description.return_value = (('user_id',),('username',))
             self.middleware.process_request(self.request)
         self.assertEqual(self.request.xf_user_id, None)
