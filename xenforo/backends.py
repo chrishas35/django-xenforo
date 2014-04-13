@@ -5,12 +5,13 @@ from django.contrib.auth import get_user_model
 import phpserialize
 
 from .conf import settings
-from .utils import dictfetchall
+from .utils import dictfetchall, convert_to_django_password
 
 
 class XFAuthBackend(object):
     """
-    Authenticates against settings.AUTH_USER_MODEL.
+    Checks for a XenForo user, and if found, creates a settings.AUTH_USER_MODEL
+    and authenticates against it.
     """
 
     def authenticate(self, username=None, password=None, **kwargs):
@@ -47,12 +48,12 @@ class XFAuthBackend(object):
             'defaults': {'pk': row['user_id'],
                          'is_staff': True,
                          'is_superuser': True,
-                         'password': 'xenforo_core12${0}'.format(phpserialize.unserialize(row['data'], decode_strings=True)['hash'])
+                         'password': convert_to_django_password(row['scheme_class'], row['data'])
                         }
         })
 
         if not created:
-            user.password = 'xenforo_core12${0}'.format(phpserialize.unserialize(row['data'], decode_strings=True)['hash'])
+            user.password = convert_to_django_password(row['scheme_class'], row['data'])
             user.save()
 
         if user.check_password(password):
