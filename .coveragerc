@@ -1,5 +1,9 @@
 [run]
-omit = xenforo/tests/*
+source = xenforo
+omit =
+    xenforo/_version.py
+    xenforo/tests/*
+branch = 1
 
 [html]
 directory = coverage_html_report

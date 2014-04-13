@@ -24,7 +24,7 @@ setup(
 		'django-appconf==0.6',
 	],
 	tests_require = [
-		'pytest==2.5.1',
+		'pytest==2.5.2',
 		'mock',
 		'bcrypt==1.0.2',
 	],

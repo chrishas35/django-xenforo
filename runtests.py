@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 if not settings.configured:
     settings.configure(
         INSTALLED_APPS=('django.contrib.auth', 'xenforo'),
-        DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': os.path.join(BASE_DIR,'db_test.sqlite3')},},
+        DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3',},},
         PASSWORD_HASHERS = [
             'xenforo.hashers.XenForoCore12PasswordHasher',
             'xenforo.hashers.XenForoSHA256PasswordHasher',
@@ -18,10 +18,10 @@ if not settings.configured:
             'xenforo.hashers.VBulletinPasswordHasher',
         ]
     )
-try:
+
+# Compatibility with Django 1.7's stricter initialization
+if hasattr(django, 'setup'):
     django.setup()
-except AttributeError:
-    pass
 
 def runtests(args=None):
     import pytest
