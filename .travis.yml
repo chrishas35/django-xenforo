@@ -31,3 +31,8 @@ script:
   - tox
 
 after_success: coveralls
+
+notifications:
+  hipchat:
+    rooms:
+      secure: G8gM9YEZqBJxrzvjvycFyFR2Uxu6yuUy3bxQVPpM41tL4Nrr/nNM73U4Nu8RBoBzeontiu29u/fqJ7+J0YY2GuxU9T57v+ARwfK0stLWxzm3dpc3h7SIYTj97w2tXAZljRe945nui3pYIHHVk2vXHcDv+j2Vrkgii2w1D2DvEDs=
