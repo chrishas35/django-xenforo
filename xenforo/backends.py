@@ -2,8 +2,6 @@ from django.db import connections
 
 from django.contrib.auth import get_user_model
 
-import phpserialize
-
 from .conf import settings
 from .utils import dictfetchall, convert_to_django_password
 
@@ -24,10 +22,13 @@ class XFAuthBackend(object):
         UserModel = get_user_model()
 
         cursor = connections[settings.XENFORO_DATABASE].cursor()
-        cursor.execute("""SELECT u.user_id, u.username, auth.scheme_class, auth.data
-                          FROM {prefix}user AS u, {prefix}user_authenticate AS auth
+        cursor.execute("""SELECT u.user_id, u.username,
+                                 auth.scheme_class, auth.data
+                          FROM {prefix}user AS u,
+                               {prefix}user_authenticate AS auth
                           WHERE u.username = %s
-                            AND auth.user_id = u.user_id""".format(prefix=settings.XENFORO_TABLE_PREFIX),
+                            AND auth.user_id = u.user_id
+                       """.format(prefix=settings.XENFORO_TABLE_PREFIX),
                        username)
         try:
             row = dictfetchall(cursor)[0]
@@ -41,13 +42,16 @@ class XFAuthBackend(object):
 
         user, created = UserModel.objects.get_or_create(**{
             UserModel.USERNAME_FIELD: username,
-            'defaults': {'pk': row['user_id'],
-                         'password': convert_to_django_password(row['scheme_class'], row['data'])
-                        }
+            'defaults': {
+                'pk': row['user_id'],
+                'password': convert_to_django_password(row['scheme_class'],
+                                                       row['data'])
+            }
         })
 
         if not created:
-            user.password = convert_to_django_password(row['scheme_class'], row['data'])
+            user.password = convert_to_django_password(row['scheme_class'],
+                                                       row['data'])
             user.save()
 
         if user.check_password(password):
